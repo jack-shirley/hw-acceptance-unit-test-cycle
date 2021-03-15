@@ -7,7 +7,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @nodirector = false
+    @title = ""
+    if params[:director].nil? || params[:director].empty?
+      @movies = Movie.all
+    elsif params[:director] == "empty"
+      @movies = Movie.where(title: params[:title])
+      @nodirector = true
+      @title = params[:title]
+    else
+      others_by_same_director
+    end
   end
 
   def new
@@ -42,6 +52,11 @@ class MoviesController < ApplicationController
   # Making "internal" methods private is not required, but is a common practice.
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
-    params.require(:movie).permit(:title, :rating, :description, :release_date)
+    params.require(:movie).permit(:title, :rating, :description, :release_date, :director)
   end
+  
+  def others_by_same_director
+    @movies = Movie.where(director: params[:director])
+  end
+  
 end
